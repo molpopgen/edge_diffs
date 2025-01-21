@@ -44,6 +44,9 @@ def num_children_of_each_parent(ts: tskit.TreeSequence):
 
 
 def num_samples_descending_from_each_node(ts: tskit.TreeSequence):
+    # NOTE: once we know the number of samples descending from a node
+    # in a given tree AND we know how to iterate over all mutations
+    # in a tree, we can ask how many samples are below a mutation!!!!
     parents = [tskit.NULL for _ in range(ts.num_nodes + 1)]
     num_samples = [0] * ts.num_nodes
     for s in ts.samples():
