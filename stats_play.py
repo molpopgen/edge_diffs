@@ -59,8 +59,10 @@ for diffs in ts.edge_diffs():
                 != ts.site(ts.mutation(w[-1]).site).ancestral_state
             ):
                 print(f"mutation {w[-1]} on node {i.child} is derived")
+                num_samples_with_ancestral_state[i.child] += 1
             else:
                 print(f"mutation {w[-1]} on node {i.child} is anc")
 
 print(parent)
 print(num_samples_below)
+print(num_samples_with_ancestral_state)
