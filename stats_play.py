@@ -47,12 +47,14 @@ for diffs in ts.edge_diffs():
         raise NotImplementedError()
     right = diffs.interval.right
     for i in diffs.edges_in:
+        print(i.child)
         parent[i.child] = i.parent
         num_samples_below[i.parent] += num_samples_below[i.child]
         while (
             current_mutation_index < ts.num_mutations
             and ts.mutation(current_mutation_index).node == i.child
         ):
+            print(ts.mutation(current_mutation_index), i.child)
             current_mutation_index += 1
 
 assert (
