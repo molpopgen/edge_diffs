@@ -36,5 +36,7 @@ tables.compute_mutation_parents()
 ts = tables.tree_sequence()
 print(ts.diversity(span_normalise=False))
 
+parent = [tskit.NULL] * ts.num_nodes
+num_samples_below = [tskit.NULL] * ts.num_nodes
 for diffs in ts.edge_diffs():
     print(diffs)
