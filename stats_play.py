@@ -90,8 +90,17 @@ for diffs in ts.edge_diffs():
         mut_at_site = 0
         num_muts_at_site = last_mut_in_range - first_mut_in_range
         while mut_at_site < num_muts_at_site:
-            print(ts.mutation(last_mut_in_range - mut_at_site - 1))
-            mut_at_site += 1
+            mut_index = last_mut_in_range - mut_at_site - 1
+            node = ts.mutation(mut_index).node
+            print(f"Mutations on node {node}")
+            temp = mut_at_site
+            while (
+                temp < num_muts_at_site
+                and ts.mutation(last_mut_in_range - temp - 1).node == node
+            ):
+                print(ts.mutation(temp))
+                temp += 1
+            mut_at_site = temp
 
         current_site_index += 1
         current_mutation_index = last_mut_in_range
