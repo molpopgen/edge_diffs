@@ -46,5 +46,7 @@ for diffs in ts.edge_diffs():
         raise NotImplementedError()
     for i in diffs.edges_in:
         parent[i.child] = i.parent
+        num_samples_below[i.parent] += num_samples_below[i.child]
 
 print(parent)
+print(num_samples_below)
