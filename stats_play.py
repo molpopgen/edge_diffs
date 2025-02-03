@@ -1,3 +1,4 @@
+import numpy as np
 import tskit
 
 tables = tskit.TableCollection(10.0)
@@ -41,7 +42,7 @@ num_samples_below = [0] * ts.num_nodes
 num_samples_with_ancestral_state = [0] * ts.num_nodes
 for s in ts.samples():
     num_samples_below[s] = 1
-current_mutation_index = 0
+mutation_node = ts.tables.mutations.node
 for diffs in ts.edge_diffs():
     for o in diffs.edges_out:
         raise NotImplementedError()
@@ -50,16 +51,16 @@ for diffs in ts.edge_diffs():
         print(i.child)
         parent[i.child] = i.parent
         num_samples_below[i.parent] += num_samples_below[i.child]
-        while (
-            current_mutation_index < ts.num_mutations
-            and ts.mutation(current_mutation_index).node == i.child
-        ):
-            print(ts.mutation(current_mutation_index), i.child)
-            current_mutation_index += 1
-
-assert (
-    current_mutation_index == ts.num_mutations
-), f"{current_mutation_index} != {ts.num_mutations}"
+        w = np.where(mutation_node == i.child)[0]
+        if len(w) > 0:
+            dstate = None
+            if (
+                ts.mutation(w[-1]).derived_state
+                != ts.site(ts.mutation(w[-1]).site).ancestral_state
+            ):
+                print(f"mutation {w[-1]} on node {i.child} is derived")
+            else:
+                print(f"mutation {w[-1]} on node {i.child} is anc")
 
 print(parent)
 print(num_samples_below)
