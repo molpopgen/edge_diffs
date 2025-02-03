@@ -94,6 +94,8 @@ for diffs in ts.edge_diffs():
             node = ts.mutation(mut_index).node
             print(f"Mutations on node {node}")
             temp = mut_at_site
+            if ts.mutation(temp).derived_state != ts.site(current_site_index).ancestral_state:
+                num_samples_with_derived_state[node] += 1
             while (
                 temp < num_muts_at_site
                 and ts.mutation(last_mut_in_range - temp - 1).node == node
