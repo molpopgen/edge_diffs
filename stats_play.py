@@ -87,6 +87,8 @@ for diffs in ts.edge_diffs():
         assert (
             last_mut_in_range - first_mut_in_range >= 1
         ), f"{last_mut_in_range} - {first_mut_in_range} = {last_mut_in_range - first_mut_in_range}"
+        for i in reversed(range(first_mut_in_range, last_mut_in_range)):
+            print(ts.mutation(i))
 
         current_site_index += 1
         current_mutation_index = last_mut_in_range
