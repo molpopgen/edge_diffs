@@ -41,12 +41,23 @@ num_samples_below = [0] * ts.num_nodes
 num_samples_with_ancestral_state = [0] * ts.num_nodes
 for s in ts.samples():
     num_samples_below[s] = 1
+current_mutation_index = 0
 for diffs in ts.edge_diffs():
     for o in diffs.edges_out:
         raise NotImplementedError()
+    right = diffs.interval.right
     for i in diffs.edges_in:
         parent[i.child] = i.parent
         num_samples_below[i.parent] += num_samples_below[i.child]
+        while (
+            current_mutation_index < ts.num_mutations
+            and ts.mutation(current_mutation_index).node == i.child
+        ):
+            current_mutation_index += 1
+
+assert (
+    current_mutation_index == ts.num_mutations
+), f"{current_mutation_index} != {ts.num_mutations}"
 
 print(parent)
 print(num_samples_below)
