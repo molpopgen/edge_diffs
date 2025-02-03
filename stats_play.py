@@ -37,6 +37,9 @@ ts = tables.tree_sequence()
 print(ts.diversity(span_normalise=False))
 
 parent = [tskit.NULL] * ts.num_nodes
-num_samples_below = [tskit.NULL] * ts.num_nodes
+num_samples_below = [0] * ts.num_nodes
+num_samples_with_ancestral_state = [0] * ts.num_nodes
+for s in ts.samples():
+    num_samples_below[s] = 1
 for diffs in ts.edge_diffs():
     print(diffs)
