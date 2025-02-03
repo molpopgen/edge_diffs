@@ -35,3 +35,6 @@ for g in ts.haplotypes():
 tables.compute_mutation_parents()
 ts = tables.tree_sequence()
 print(ts.diversity(span_normalise=False))
+
+for diffs in ts.edge_diffs():
+    print(diffs)
