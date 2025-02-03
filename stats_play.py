@@ -43,6 +43,8 @@ num_samples_with_derived_state = [0] * ts.num_nodes
 for s in ts.samples():
     num_samples_below[s] = 1
 mutation_node = ts.tables.mutations.node
+current_site_index = 0
+current_mutation_index = 0
 for diffs in ts.edge_diffs():
     for o in diffs.edges_out:
         raise NotImplementedError()
@@ -51,19 +53,25 @@ for diffs in ts.edge_diffs():
         print(i.child)
         parent[i.child] = i.parent
         num_samples_below[i.parent] += num_samples_below[i.child]
-        raise NotImplementedError("should do the next steps after local tree is done")
-        w = np.where(mutation_node == i.child)[0]
-        if len(w) > 0:
-            dstate = None
-            if (
-                ts.mutation(w[-1]).derived_state
-                != ts.site(ts.mutation(w[-1]).site).ancestral_state
-            ):
-                print(f"mutation {w[-1]} on node {i.child} is derived")
-                num_samples_with_derived_state[i.child] += 1
-            else:
-                print(f"mutation {w[-1]} on node {i.child} is anc")
 
+    # Advance sites to current tree
+    while (
+        current_site_index < ts.num_sites
+        and ts.site(current_site_index).position < diffs.interval.right
+    ):
+        current_site_index += 1
+
+    while (
+        current_mutation_index < ts.num_mutations
+        and current_site_index < ts.num_sites
+        and ts.mutation(current_mutation_index).site != current_site_index
+    ):
+        current_mutation_index += 1
+
+    raise NotImplementedError()
+
+assert current_site_index == ts.num_sites
+assert current_mutation_index == ts.num_mutations
 print(parent)
 print(num_samples_below)
 print(num_samples_with_derived_state)
