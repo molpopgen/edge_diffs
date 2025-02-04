@@ -45,6 +45,7 @@ for s in ts.samples():
 mutation_node = ts.tables.mutations.node
 current_site_index = 0
 current_mutation_index = 0
+allele_count_list = []
 for diffs in ts.edge_diffs():
     for o in diffs.edges_out:
         raise NotImplementedError()
@@ -89,13 +90,20 @@ for diffs in ts.edge_diffs():
         ), f"{last_mut_in_range} - {first_mut_in_range} = {last_mut_in_range - first_mut_in_range}"
         mut_at_site = 0
         num_muts_at_site = last_mut_in_range - first_mut_in_range
+        allele_counts = [0] * (num_muts_at_site + 1)
         while mut_at_site < num_muts_at_site:
             mut_index = last_mut_in_range - mut_at_site - 1
             node = ts.mutation(mut_index).node
             print(f"Mutations on node {node}")
             temp = mut_at_site
-            if ts.mutation(temp).derived_state != ts.site(current_site_index).ancestral_state:
-                num_samples_with_derived_state[node] += 1
+            if (
+                ts.mutation(temp).derived_state
+                != ts.site(current_site_index).ancestral_state
+            ):
+                num_samples_with_derived_state[parent[node]] += 1
+                allele_counts[mut_index + 1] += (
+                    num_samples_below[node] - num_samples_with_derived_state[node]
+                )
             while (
                 temp < num_muts_at_site
                 and ts.mutation(last_mut_in_range - temp - 1).node == node
@@ -103,6 +111,7 @@ for diffs in ts.edge_diffs():
                 print(ts.mutation(temp))
                 temp += 1
             mut_at_site = temp
+        allele_count_list.append(allele_counts)
 
         current_site_index += 1
         current_mutation_index = last_mut_in_range
@@ -116,3 +125,16 @@ assert (
 print(parent)
 print(num_samples_below)
 print(num_samples_with_derived_state)
+
+print("allele counts per site")
+for ac in allele_count_list:
+    print(ac)
+
+div = 0.0
+for ac in allele_count_list:
+    homozygosity = 0.0
+    for i in ac:
+        if i > 0:
+            homozygosity += i * (i - 1) / (ts.num_samples * (ts.num_samples - 1))
+    div += 1.0 - homozygosity
+print(f"total diversity = {div}")
