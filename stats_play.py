@@ -90,6 +90,9 @@ for diffs in ts.edge_diffs():
         ), f"{last_mut_in_range} - {first_mut_in_range} = {last_mut_in_range - first_mut_in_range}"
         mut_at_site = 0
         num_muts_at_site = last_mut_in_range - first_mut_in_range
+        # NOTE: this is wrong -- it is counting
+        # changes on the tree that do NOT
+        # change sample state as alleles!
         allele_counts = [0] * (num_muts_at_site + 1)
         while mut_at_site < num_muts_at_site:
             mut_index = last_mut_in_range - mut_at_site - 1
