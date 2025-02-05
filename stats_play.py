@@ -96,19 +96,23 @@ for diffs in ts.edge_diffs():
             node = ts.mutation(mut_index).node
             print(f"Mutations on node {node}")
             temp = mut_at_site
+            mindex = last_mut_in_range - temp - 1
             if (
-                ts.mutation(temp).derived_state
+                ts.mutation(mindex).derived_state
                 != ts.site(current_site_index).ancestral_state
             ):
+                print(f"most recent = {ts.mutation(mindex)}")
                 num_samples_with_derived_state[parent[node]] += 1
                 allele_counts.append(
                     num_samples_below[node] - num_samples_with_derived_state[node]
                 )
+            temp += 1
             while (
                 temp < num_muts_at_site
                 and ts.mutation(last_mut_in_range - temp - 1).node == node
             ):
-                print(ts.mutation(temp))
+                mindex = last_mut_in_range - temp - 1
+                print(ts.mutation(mindex))
                 temp += 1
             mut_at_site = temp
         allele_count_list.append(allele_counts)
