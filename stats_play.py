@@ -90,7 +90,7 @@ for diffs in ts.edge_diffs():
         ), f"{last_mut_in_range} - {first_mut_in_range} = {last_mut_in_range - first_mut_in_range}"
         mut_at_site = 0
         num_muts_at_site = last_mut_in_range - first_mut_in_range
-        allele_counts = [0]
+        allele_counts = [ts.num_samples]
         while mut_at_site < num_muts_at_site:
             mut_index = last_mut_in_range - mut_at_site - 1
             node = ts.mutation(mut_index).node
@@ -103,9 +103,9 @@ for diffs in ts.edge_diffs():
             ):
                 print(f"most recent = {ts.mutation(mindex)}")
                 num_samples_with_derived_state[parent[node]] += 1
-                allele_counts.append(
-                    num_samples_below[node] - num_samples_with_derived_state[node]
-                )
+                nd = num_samples_below[node] - num_samples_with_derived_state[node]
+                allele_counts.append(nd)
+                allele_counts[0] -= nd
             temp += 1
             while (
                 temp < num_muts_at_site
@@ -134,8 +134,6 @@ print("allele counts per site")
 for ac in allele_count_list:
     print(ac)
 
-# NOTE: the allele count list is wrong!
-# We have a ZERO for the number of ancestral_state counts!
 div = 0.0
 for ac in allele_count_list:
     homozygosity = 0.0
