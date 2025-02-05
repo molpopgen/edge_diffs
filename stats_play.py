@@ -134,6 +134,8 @@ print("allele counts per site")
 for ac in allele_count_list:
     print(ac)
 
+# NOTE: the allele count list is wrong!
+# We have a ZERO for the number of ancestral_state counts!
 div = 0.0
 for ac in allele_count_list:
     homozygosity = 0.0
