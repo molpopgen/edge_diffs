@@ -153,9 +153,7 @@ def test_case_1():
     m0 = tables.mutations.add_row(s0, node=n0, time=0.5, derived_state="G")
     m1 = tables.mutations.add_row(s0, node=n1, time=0.5, derived_state="G")
     m2 = tables.mutations.add_row(s0, node=n2, time=0.5, derived_state="G")
-    m3 = tables.mutations.add_row(
-        s0, node=n3, time=1.5, derived_state="A"
-    )
+    m3 = tables.mutations.add_row(s0, node=n3, time=1.5, derived_state="A")
 
     tables.sort()
     print(tables.mutations)
@@ -164,6 +162,7 @@ def test_case_1():
     allele_counts = make_allele_count_list(ts)
     assert len(allele_counts) == 1
     assert allele_counts[0] == [0, 3]
+
 
 def test_case_2():
     tables = tskit.TableCollection(10.0)
@@ -184,9 +183,7 @@ def test_case_2():
     m0 = tables.mutations.add_row(s0, node=n0, time=0.5, derived_state="C")
     m1 = tables.mutations.add_row(s0, node=n1, time=0.5, derived_state="C")
     m2 = tables.mutations.add_row(s0, node=n2, time=1.5, derived_state="C")
-    m3 = tables.mutations.add_row(
-        s0, node=n3, time=1.5, derived_state="G"
-    )
+    m3 = tables.mutations.add_row(s0, node=n3, time=1.5, derived_state="G")
 
     tables.sort()
     print(tables.mutations)
