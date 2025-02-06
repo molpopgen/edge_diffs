@@ -138,31 +138,33 @@ def test_case_0():
 
 # FIXME: the pathogical case taht we do not handle properly
 # is branches to the same derived_state on different branches
+def test_case_1():
+    tables = tskit.TableCollection(10.0)
 
-tables = tskit.TableCollection(10.0)
+    n0 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
+    n1 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
+    n2 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
+    n3 = tables.nodes.add_row(0, time=1.0)
+    n4 = tables.nodes.add_row(0, time=2.0)
 
-n0 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
-n1 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
-n2 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
-n3 = tables.nodes.add_row(0, time=1.0)
-n4 = tables.nodes.add_row(0, time=2.0)
+    tables.edges.add_row(0, 10, 4, 3)
+    tables.edges.add_row(0, 10, 4, 2)
+    tables.edges.add_row(0, 10, 3, 1)
+    tables.edges.add_row(0, 10, 3, 0)
 
-tables.edges.add_row(0, 10, 4, 3)
-tables.edges.add_row(0, 10, 4, 2)
-tables.edges.add_row(0, 10, 3, 1)
-tables.edges.add_row(0, 10, 3, 0)
+    s0 = tables.sites.add_row(5.0, ancestral_state="hot dog")
 
-s0 = tables.sites.add_row(5.0, ancestral_state="hot dog")
+    m0 = tables.mutations.add_row(s0, node=n0, time=0.5, derived_state="burger")
+    m1 = tables.mutations.add_row(s0, node=n1, time=0.5, derived_state="burger")
+    m2 = tables.mutations.add_row(s0, node=n2, time=0.5, derived_state="burger")
+    m3 = tables.mutations.add_row(
+        s0, node=n3, time=1.5, derived_state="falafel sandwich"
+    )
 
-m0 = tables.mutations.add_row(s0, node=n0, time=0.5, derived_state="burger")
-m1 = tables.mutations.add_row(s0, node=n1, time=0.5, derived_state="burger")
-m2 = tables.mutations.add_row(s0, node=n2, time=0.5, derived_state="burger")
-m3 = tables.mutations.add_row(s0, node=n3, time=1.5, derived_state="falafel sandwich")
-
-tables.sort()
-
-print(tables.tree_sequence().draw_text())
-
-print(tables.mutations)
-
-raise NotImplementedError("the above case is not handled!!!")
+    tables.sort()
+    print(tables.mutations)
+    ts = tables.tree_sequence()
+    print(ts.draw_text())
+    allele_counts = make_allele_count_list(ts)
+    assert len(allele_counts) == 1
+    assert allele_counts[0] == [0, 3]
