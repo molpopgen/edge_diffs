@@ -17,7 +17,6 @@ def make_allele_count_list(ts: tskit.TreeSequence):
             raise NotImplementedError()
         right = diffs.interval.right
         for i in diffs.edges_in:
-            print(i.child)
             parent[i.child] = i.parent
             num_samples_below[i.parent] += num_samples_below[i.child]
 
@@ -60,14 +59,12 @@ def make_allele_count_list(ts: tskit.TreeSequence):
             while mut_at_site < num_muts_at_site:
                 mut_index = last_mut_in_range - mut_at_site - 1
                 node = ts.mutation(mut_index).node
-                print(f"Mutations on node {node}")
                 temp = mut_at_site
                 mindex = last_mut_in_range - temp - 1
                 if (
                     ts.mutation(mindex).derived_state
                     != ts.site(current_site_index).ancestral_state
                 ):
-                    print(f"most recent = {ts.mutation(mindex)}")
                     num_samples_with_derived_state[parent[node]] += 1
                     nd = num_samples_below[node] - num_samples_with_derived_state[node]
                     allele_counts.append(nd)
@@ -78,7 +75,6 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                     and ts.mutation(last_mut_in_range - temp - 1).node == node
                 ):
                     mindex = last_mut_in_range - temp - 1
-                    print(ts.mutation(mindex))
                     temp += 1
                 mut_at_site = temp
             allele_count_list.append(allele_counts)
