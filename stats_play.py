@@ -1,6 +1,98 @@
 import numpy as np
 import tskit
 
+
+def make_allele_count_list(ts: tskit.TreeSequence):
+    parent = [tskit.NULL] * (ts.num_nodes + 1)
+    num_samples_below = [0] * ts.num_nodes
+    num_samples_with_derived_state = [0] * ts.num_nodes
+    for s in ts.samples():
+        num_samples_below[s] = 1
+    mutation_node = ts.tables.mutations.node
+    current_site_index = 0
+    current_mutation_index = 0
+    allele_count_list = []
+    for diffs in ts.edge_diffs():
+        for o in diffs.edges_out:
+            raise NotImplementedError()
+        right = diffs.interval.right
+        for i in diffs.edges_in:
+            print(i.child)
+            parent[i.child] = i.parent
+            num_samples_below[i.parent] += num_samples_below[i.child]
+
+        # Advance sites to current tree
+        while (
+            current_site_index < ts.num_sites
+            and ts.site(current_site_index).position < diffs.interval.left
+        ):
+            current_site_index += 1
+
+        while (
+            current_mutation_index < ts.num_mutations
+            and current_site_index < ts.num_sites
+            and ts.mutation(current_mutation_index).site != current_site_index
+        ):
+            current_mutation_index += 1
+
+        while (
+            current_site_index < ts.num_sites
+            and ts.site(current_site_index).position < diffs.interval.right
+        ):
+            while (
+                current_mutation_index < ts.num_mutations
+                and ts.mutation(current_mutation_index).site != current_site_index
+            ):
+                current_mutation_index += 1
+            first_mut_in_range = current_mutation_index
+            last_mut_in_range = current_mutation_index
+            while (
+                last_mut_in_range < ts.num_mutations
+                and ts.mutation(last_mut_in_range).site == current_site_index
+            ):
+                last_mut_in_range += 1
+            assert (
+                last_mut_in_range - first_mut_in_range >= 1
+            ), f"{last_mut_in_range} - {first_mut_in_range} = {last_mut_in_range - first_mut_in_range}"
+            mut_at_site = 0
+            num_muts_at_site = last_mut_in_range - first_mut_in_range
+            allele_counts = [ts.num_samples]
+            while mut_at_site < num_muts_at_site:
+                mut_index = last_mut_in_range - mut_at_site - 1
+                node = ts.mutation(mut_index).node
+                print(f"Mutations on node {node}")
+                temp = mut_at_site
+                mindex = last_mut_in_range - temp - 1
+                if (
+                    ts.mutation(mindex).derived_state
+                    != ts.site(current_site_index).ancestral_state
+                ):
+                    print(f"most recent = {ts.mutation(mindex)}")
+                    num_samples_with_derived_state[parent[node]] += 1
+                    nd = num_samples_below[node] - num_samples_with_derived_state[node]
+                    allele_counts.append(nd)
+                    allele_counts[0] -= nd
+                temp += 1
+                while (
+                    temp < num_muts_at_site
+                    and ts.mutation(last_mut_in_range - temp - 1).node == node
+                ):
+                    mindex = last_mut_in_range - temp - 1
+                    print(ts.mutation(mindex))
+                    temp += 1
+                mut_at_site = temp
+            allele_count_list.append(allele_counts)
+
+            current_site_index += 1
+            current_mutation_index = last_mut_in_range
+
+    assert current_site_index == ts.num_sites
+    assert (
+        current_mutation_index == ts.num_mutations
+    ), f"{current_mutation_index} != {ts.num_mutations}"
+    return allele_count_list
+
+
 tables = tskit.TableCollection(10.0)
 
 n0 = tables.nodes.add_row(0, time=2)
@@ -37,98 +129,7 @@ tables.compute_mutation_parents()
 ts = tables.tree_sequence()
 print(ts.diversity(span_normalise=False))
 
-parent = [tskit.NULL] * (ts.num_nodes + 1)
-num_samples_below = [0] * ts.num_nodes
-num_samples_with_derived_state = [0] * ts.num_nodes
-for s in ts.samples():
-    num_samples_below[s] = 1
-mutation_node = ts.tables.mutations.node
-current_site_index = 0
-current_mutation_index = 0
-allele_count_list = []
-for diffs in ts.edge_diffs():
-    for o in diffs.edges_out:
-        raise NotImplementedError()
-    right = diffs.interval.right
-    for i in diffs.edges_in:
-        print(i.child)
-        parent[i.child] = i.parent
-        num_samples_below[i.parent] += num_samples_below[i.child]
-
-    # Advance sites to current tree
-    while (
-        current_site_index < ts.num_sites
-        and ts.site(current_site_index).position < diffs.interval.left
-    ):
-        current_site_index += 1
-
-    while (
-        current_mutation_index < ts.num_mutations
-        and current_site_index < ts.num_sites
-        and ts.mutation(current_mutation_index).site != current_site_index
-    ):
-        current_mutation_index += 1
-
-    while (
-        current_site_index < ts.num_sites
-        and ts.site(current_site_index).position < diffs.interval.right
-    ):
-        while (
-            current_mutation_index < ts.num_mutations
-            and ts.mutation(current_mutation_index).site != current_site_index
-        ):
-            current_mutation_index += 1
-        first_mut_in_range = current_mutation_index
-        last_mut_in_range = current_mutation_index
-        while (
-            last_mut_in_range < ts.num_mutations
-            and ts.mutation(last_mut_in_range).site == current_site_index
-        ):
-            last_mut_in_range += 1
-        assert (
-            last_mut_in_range - first_mut_in_range >= 1
-        ), f"{last_mut_in_range} - {first_mut_in_range} = {last_mut_in_range - first_mut_in_range}"
-        mut_at_site = 0
-        num_muts_at_site = last_mut_in_range - first_mut_in_range
-        allele_counts = [ts.num_samples]
-        while mut_at_site < num_muts_at_site:
-            mut_index = last_mut_in_range - mut_at_site - 1
-            node = ts.mutation(mut_index).node
-            print(f"Mutations on node {node}")
-            temp = mut_at_site
-            mindex = last_mut_in_range - temp - 1
-            if (
-                ts.mutation(mindex).derived_state
-                != ts.site(current_site_index).ancestral_state
-            ):
-                print(f"most recent = {ts.mutation(mindex)}")
-                num_samples_with_derived_state[parent[node]] += 1
-                nd = num_samples_below[node] - num_samples_with_derived_state[node]
-                allele_counts.append(nd)
-                allele_counts[0] -= nd
-            temp += 1
-            while (
-                temp < num_muts_at_site
-                and ts.mutation(last_mut_in_range - temp - 1).node == node
-            ):
-                mindex = last_mut_in_range - temp - 1
-                print(ts.mutation(mindex))
-                temp += 1
-            mut_at_site = temp
-        allele_count_list.append(allele_counts)
-
-        current_site_index += 1
-        current_mutation_index = last_mut_in_range
-
-    #   raise NotImplementedError()
-
-assert current_site_index == ts.num_sites
-assert (
-    current_mutation_index == ts.num_mutations
-), f"{current_mutation_index} != {ts.num_mutations}"
-print(parent)
-print(num_samples_below)
-print(num_samples_with_derived_state)
+allele_count_list = make_allele_count_list(ts)
 
 print("allele counts per site")
 for ac in allele_count_list:
