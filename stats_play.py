@@ -93,6 +93,16 @@ def make_allele_count_list(ts: tskit.TreeSequence):
     return allele_count_list
 
 
+def total_diversity(allele_count_list, n):
+    div = 0.0
+    for ac in allele_count_list:
+        homozygosity = 0.0
+        for i in ac:
+            homozygosity += i * (i - 1) / (n * (n - 1))
+        div += 1.0 - homozygosity
+    return div
+
+
 tables = tskit.TableCollection(10.0)
 
 n0 = tables.nodes.add_row(0, time=2)
@@ -135,13 +145,7 @@ print("allele counts per site")
 for ac in allele_count_list:
     print(ac)
 
-div = 0.0
-for ac in allele_count_list:
-    homozygosity = 0.0
-    for i in ac:
-        if i > 0:
-            homozygosity += i * (i - 1) / (ts.num_samples * (ts.num_samples - 1))
-    div += 1.0 - homozygosity
+div =total_diversity(allele_count_list, ts.num_samples)
 print(f"total diversity = {div}")
 
 
