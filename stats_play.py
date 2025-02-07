@@ -244,3 +244,7 @@ def test_case_3():
     allele_counts = make_allele_count_list(ts)
     assert len(allele_counts) == 1
     assert allele_counts[0] == [0, 2, 1]
+
+
+def test_case_4():
+    raise NotImplementedError("need test of anc -> derived -> anc (on just 1 branch)")
