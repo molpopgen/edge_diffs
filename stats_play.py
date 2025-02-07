@@ -56,11 +56,19 @@ def make_allele_count_list(ts: tskit.TreeSequence):
             mut_at_site = 0
             num_muts_at_site = last_mut_in_range - first_mut_in_range
             allele_counts = [ts.num_samples]
+            alleles_at_site = [ts.site(current_site_index).ancestral_state]
             while mut_at_site < num_muts_at_site:
                 mut_index = last_mut_in_range - mut_at_site - 1
                 node = ts.mutation(mut_index).node
                 temp = mut_at_site
                 mindex = last_mut_in_range - temp - 1
+                try:
+                    mut_allele = alleles_at_site.index(
+                        ts.mutation(mut_index).derived_state
+                    )
+                except ValueError:
+                    mut_allele = None
+                print(f"allele = {mut_allele}")
                 if (
                     ts.mutation(mindex).derived_state
                     != ts.site(current_site_index).ancestral_state
@@ -194,6 +202,7 @@ def test_case_2():
     allele_counts = make_allele_count_list(ts)
     assert len(allele_counts) == 1
     assert allele_counts[0] == [0, 3]
+
 
 def test_case_3():
     tables = tskit.TableCollection(10.0)
