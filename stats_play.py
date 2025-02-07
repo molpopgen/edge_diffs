@@ -79,7 +79,8 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                 ):
                     num_samples_with_derived_state[parent[node]] += 1
                     nd = num_samples_below[node] - num_samples_with_derived_state[node]
-                    allele_counts.append(nd)
+                    allele_counts[mut_allele] += nd
+                    # allele_counts.append(nd)
                     allele_counts[0] -= nd
                 temp += 1
                 while (
