@@ -62,6 +62,7 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                 node = ts.mutation(mut_index).node
                 temp = mut_at_site
                 mindex = last_mut_in_range - temp - 1
+                raise NotImplementedError("geet rid of the next if statement")
                 if (
                     ts.mutation(mindex).derived_state
                     != ts.site(current_site_index).ancestral_state
