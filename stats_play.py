@@ -71,6 +71,7 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                 if mut_allele is None:
                     alleles_at_site.append(ts.mutation(mut_index).derived_state)
                     mut_allele = len(alleles_at_site) - 1
+                    allele_counts.append(0)
                 print(f"allele = {mut_allele}")
                 if (
                     ts.mutation(mindex).derived_state
