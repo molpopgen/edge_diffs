@@ -69,9 +69,16 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                 except ValueError:
                     mut_allele = None
                 if mut_allele is None:
-                    alleles_at_site.append(ts.mutation(mut_index).derived_state)
-                    mut_allele = len(alleles_at_site) - 1
-                    allele_counts.append(0)
+                    pass
+                    #alleles_at_site.append(ts.mutation(mut_index).derived_state)
+                    #mut_allele = len(alleles_at_site) - 1
+                    #assert mut_allele == alleles_at_site.index(
+                    #    ts.mutation(mut_index).derived_state
+                    #)
+                    #print(
+                    #    f"adding allele {ts.mutation(mut_index).derived_state} at {mut_allele}"
+                    #)
+                    #allele_counts.append(0)
                 print(f"allele = {mut_allele}")
                 if (
                     ts.mutation(mindex).derived_state
@@ -79,7 +86,18 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                 ):
                     num_samples_with_derived_state[parent[node]] += 1
                     nd = num_samples_below[node] - num_samples_with_derived_state[node]
-                    allele_counts[mut_allele] += nd
+                    if nd > 0 and mut_allele is None:
+                        alleles_at_site.append(ts.mutation(mut_index).derived_state)
+                        mut_allele = len(alleles_at_site) - 1
+                        assert mut_allele == alleles_at_site.index(
+                            ts.mutation(mut_index).derived_state
+                        )
+                        print(
+                            f"adding allele {ts.mutation(mut_index).derived_state} at {mut_allele}"
+                        )
+                        allele_counts.append(0)
+                    if mut_allele is not None:
+                        allele_counts[mut_allele] += nd
                     # allele_counts.append(nd)
                     allele_counts[0] -= nd
                 temp += 1
