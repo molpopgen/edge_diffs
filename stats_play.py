@@ -62,32 +62,28 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                 node = ts.mutation(mut_index).node
                 temp = mut_at_site
                 mindex = last_mut_in_range - temp - 1
-                raise NotImplementedError("geet rid of the next if statement")
-                if (
-                    ts.mutation(mindex).derived_state
-                    != ts.site(current_site_index).ancestral_state
-                ):
-                    num_samples_with_derived_state[parent[node]] += 1
-                    nd = num_samples_below[node] - num_samples_with_derived_state[node]
-                    if nd > 0:
-                        try:
-                            mut_allele = alleles_at_site.index(
-                                ts.mutation(mut_index).derived_state
-                            )
-                        except ValueError:
-                            mut_allele = None
-                        if mut_allele is None:
-                            alleles_at_site.append(ts.mutation(mut_index).derived_state)
-                            mut_allele = len(alleles_at_site) - 1
-                            assert mut_allele == alleles_at_site.index(
-                                ts.mutation(mut_index).derived_state
-                            )
-                            print(
-                                f"adding allele {ts.mutation(mut_index).derived_state} at {mut_allele}"
-                            )
-                            allele_counts.append(0)
-                        allele_counts[mut_allele] += nd
-                        allele_counts[0] -= nd
+                # WARNING: the bits below are possibly broken
+                num_samples_with_derived_state[parent[node]] += 1
+                nd = num_samples_below[node] - num_samples_with_derived_state[node]
+                if nd > 0:
+                    try:
+                        mut_allele = alleles_at_site.index(
+                            ts.mutation(mut_index).derived_state
+                        )
+                    except ValueError:
+                        mut_allele = None
+                    if mut_allele is None:
+                        alleles_at_site.append(ts.mutation(mut_index).derived_state)
+                        mut_allele = len(alleles_at_site) - 1
+                        assert mut_allele == alleles_at_site.index(
+                            ts.mutation(mut_index).derived_state
+                        )
+                        print(
+                            f"adding allele {ts.mutation(mut_index).derived_state} at {mut_allele}"
+                        )
+                        allele_counts.append(0)
+                    allele_counts[mut_allele] += nd
+                    allele_counts[0] -= nd
                 temp += 1
                 while (
                     temp < num_muts_at_site
