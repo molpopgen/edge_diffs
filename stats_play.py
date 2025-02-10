@@ -81,8 +81,10 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                         allele_counts.append(0)
                     num_samples_with_derived_state[parent[node]] += 1
                     print(mut_allele, nd)
-                    allele_counts[mut_allele] += nd
-                    allele_counts[0] -= nd
+                    if mut_allele > 0:
+                        print(f"updating {alleles_at_site[mut_allele]}")
+                        allele_counts[mut_allele] += nd
+                        allele_counts[0] -= nd
                 temp += 1
                 while (
                     temp < num_muts_at_site
@@ -302,5 +304,6 @@ def test_case_5():
     print(ts.draw_text())
     print(tables.mutations)
     allele_counts = make_allele_count_list(ts)
+    print([i for i in ts.haplotypes()])
     assert len(allele_counts) == 1
     assert allele_counts[0] == [2, 1, 1]
