@@ -61,6 +61,7 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                 temp = mut_at_site
                 # WARNING: the bits below are possibly broken
                 nd = num_samples_below[node] - num_samples_with_derived_state[node]
+                assert nd >= 0
                 if nd > 0:
                     try:
                         mut_allele = alleles_at_site.index(
