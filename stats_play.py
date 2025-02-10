@@ -270,3 +270,27 @@ def test_case_4():
     assert len(allele_counts) == 1
     assert allele_counts[0] == [1, 2]
     # raise NotImplementedError("need test of anc -> derived -> anc (on just 1 branch)")
+
+
+def test_case_5():
+    tables = tskit.TableCollection(10.0)
+
+    n0 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
+    n1 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
+    n2 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
+    n3 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
+    n4 = tables.nodes.add_row(0, time=1.0)
+    n5 = tables.nodes.add_row(0, time=2.0)
+    n5 = tables.nodes.add_row(0, time=3.0)
+
+    s0 = tables.sites.add_row(5.0, ancestral_state="G")
+
+    m0 = tables.mutations.add_row(s0, node=5, time=2.1, derived_state="A")
+    m1 = tables.mutations.add_row(s0, node=4, time=1.1, derived_state="G")
+    m2 = tables.mutations.add_row(s0, node=1, time=0.1, derived_state="C")
+
+    tables.sort()
+    ts = tables.tree_sequence()
+    allele_counts = make_allele_count_list(ts)
+    assert len(allele_counts) == 1
+    assert allele_counts[0] == [2, 1, 1]
