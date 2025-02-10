@@ -75,22 +75,14 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                         assert mut_allele == alleles_at_site.index(
                             ts.mutation(mut_index).derived_state
                         )
-                        print(
-                            f"adding allele {ts.mutation(mut_index).derived_state} at {
-                                mut_allele}"
-                        )
                         allele_counts.append(0)
                     if mut_allele > 0:
-                        print(
-                            f"updating {alleles_at_site[mut_allele]} at {mut_allele} by {nd}"
-                        )
                         allele_counts[mut_allele] += nd
                         allele_counts[0] -= nd
                 p = parent[node]
                 while p != tskit.NULL:
                     num_samples_with_derived_state[p] += 1
                     p = parent[p]
-                print(node, parent[node], allele_counts, num_samples_with_derived_state)
                 temp += 1
                 while (
                     temp < num_muts_at_site
@@ -98,7 +90,6 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                 ):
                     temp += 1
                 mut_at_site = temp
-            print(f"alleles = {alleles_at_site}")
             allele_count_list.append(allele_counts)
 
             current_site_index += 1
