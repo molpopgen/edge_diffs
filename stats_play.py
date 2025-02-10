@@ -53,7 +53,7 @@ def make_allele_count_list(ts: tskit.TreeSequence):
             ), f"{last_mut_in_range} - {first_mut_in_range} = {last_mut_in_range - first_mut_in_range}"
             mut_at_site = 0
             num_muts_at_site = last_mut_in_range - first_mut_in_range
-            allele_counts = [ts.num_samples]
+            allele_counts = [0]
             alleles_at_site = [ts.site(current_site_index).ancestral_state]
             while mut_at_site < num_muts_at_site:
                 mut_index = last_mut_in_range - mut_at_site - 1
@@ -78,7 +78,6 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                         allele_counts.append(0)
                     if mut_allele > 0:
                         allele_counts[mut_allele] += nd
-                        allele_counts[0] -= nd
                 p = parent[node]
                 while p != tskit.NULL:
                     num_samples_with_derived_state[p] += 1
@@ -90,6 +89,7 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                 ):
                     temp += 1
                 mut_at_site = temp
+            allele_counts[0] = ts.num_samples - sum(allele_counts[1:])
             allele_count_list.append(allele_counts)
 
             current_site_index += 1
