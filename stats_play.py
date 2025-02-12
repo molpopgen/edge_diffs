@@ -315,3 +315,46 @@ def test_case_5():
     print([i for i in ts.haplotypes()])
     assert len(allele_counts) == 1
     assert allele_counts[0] == [2, 1, 1]
+
+def test_case_6():
+    tables = tskit.TableCollection(10.0)
+
+    n0 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
+    n1 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
+    n2 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
+    n3 = tables.nodes.add_row(tskit.NODE_IS_SAMPLE, time=0.0)
+    n4 = tables.nodes.add_row(0, time=1.0)
+    n5 = tables.nodes.add_row(0, time=2.0)
+    n6 = tables.nodes.add_row(0, time=3.0)
+
+    s0 = tables.sites.add_row(4.0, ancestral_state="G")
+
+    tables.edges.add_row(0, 5, n6, n5)
+    tables.edges.add_row(0, 5, n6, n3)
+    tables.edges.add_row(0, 5, n5, n4)
+    tables.edges.add_row(0, 5, n5, n2)
+    tables.edges.add_row(0, 5, n4, n1)
+    tables.edges.add_row(0, 5, n4, n0)
+
+    tables.edges.add_row(5, 10, n6, n5)
+    tables.edges.add_row(5, 10, n6, n3)
+    tables.edges.add_row(5, 10, n5, n4)
+    tables.edges.add_row(5, 10, n5, n2)
+    tables.edges.add_row(5, 10, n4, n1)
+    tables.edges.add_row(5, 10, n4, n0)
+
+    m0 = tables.mutations.add_row(s0, node=5, time=2.1, derived_state="A")
+    m1 = tables.mutations.add_row(s0, node=4, time=1.1, derived_state="G")
+    m2 = tables.mutations.add_row(s0, node=1, time=0.1, derived_state="C")
+
+    tables.sort()
+    tables.build_index()
+    tables.compute_mutation_parents()
+    ts = tables.tree_sequence()
+    assert ts.num_trees == 2
+    print(ts.draw_text())
+    print(tables.mutations)
+    allele_counts = make_allele_count_list(ts)
+    print([i for i in ts.haplotypes()])
+    assert len(allele_counts) == 1
+    assert allele_counts[0] == [2, 1, 1]
