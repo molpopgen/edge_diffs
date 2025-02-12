@@ -317,6 +317,7 @@ def test_case_5():
     assert len(allele_counts) == 1
     assert allele_counts[0] == [2, 1, 1]
 
+
 def test_case_6():
     tables = tskit.TableCollection(10.0)
 
@@ -327,8 +328,6 @@ def test_case_6():
     n4 = tables.nodes.add_row(0, time=1.0)
     n5 = tables.nodes.add_row(0, time=2.0)
     n6 = tables.nodes.add_row(0, time=3.0)
-
-    s0 = tables.sites.add_row(6.0, ancestral_state="G")
 
     tables.edges.add_row(0, 5, n6, n5)
     tables.edges.add_row(0, 5, n6, n3)
@@ -344,9 +343,16 @@ def test_case_6():
     tables.edges.add_row(5, 10, n4, n1)
     tables.edges.add_row(5, 10, n4, n0)
 
+    s0 = tables.sites.add_row(6.0, ancestral_state="G")
     m0 = tables.mutations.add_row(s0, node=5, time=2.1, derived_state="A")
     m1 = tables.mutations.add_row(s0, node=4, time=1.1, derived_state="G")
     m2 = tables.mutations.add_row(s0, node=1, time=0.1, derived_state="C")
+    s1 = tables.sites.add_row(4.0, ancestral_state="G")
+    # NOTE: adding all these mutations (accidentally)
+    # to s0 causes internal assertions to fail
+    m1 = tables.mutations.add_row(s1, node=5, time=2.1, derived_state="A")
+    m2 = tables.mutations.add_row(s1, node=4, time=1.1, derived_state="G")
+    m3 = tables.mutations.add_row(s1, node=1, time=0.1, derived_state="C")
 
     tables.sort()
     tables.build_index()
@@ -357,5 +363,6 @@ def test_case_6():
     print(tables.mutations)
     allele_counts = make_allele_count_list(ts)
     print([i for i in ts.haplotypes()])
-    assert len(allele_counts) == 1
+    assert len(allele_counts) == 2
     assert allele_counts[0] == [2, 1, 1]
+    assert allele_counts[1] == [2, 1, 1]
