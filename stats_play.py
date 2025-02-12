@@ -5,7 +5,7 @@ import tskit
 def make_allele_count_list(ts: tskit.TreeSequence):
     parent = [tskit.NULL] * (ts.num_nodes + 1)
     num_samples_below = [0] * ts.num_nodes
-    num_samples_with_derived_state = [0] * ts.num_nodes
+    num_samples_with_derived_state = [0] * ts.num_mutations
     for s in ts.samples():
         num_samples_below[s] = 1
     current_site_index = 0
@@ -60,7 +60,8 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                 node = ts.mutation(mut_index).node
                 temp = mut_at_site
                 # WARNING: the bits below are possibly broken
-                nd = num_samples_below[node] - num_samples_with_derived_state[node]
+                nd = num_samples_below[node] - num_samples_with_derived_state[mut_index]
+                print(mut_index, node, num_samples_with_derived_state[mut_index])
                 assert nd >= 0
                 if nd > 0:
                     try:
@@ -78,10 +79,10 @@ def make_allele_count_list(ts: tskit.TreeSequence):
                         allele_counts.append(0)
                     if mut_allele > 0:
                         allele_counts[mut_allele] += nd
-                p = parent[node]
+                p = ts.mutation(mut_index).parent
                 while p != tskit.NULL:
                     num_samples_with_derived_state[p] += 1
-                    p = parent[p]
+                    p = ts.mutation(p).parent
                 temp += 1
                 while (
                     temp < num_muts_at_site
@@ -132,6 +133,8 @@ def test_case_0():
     tables.mutations.add_row(site, node=n1, time=1.1, derived_state="T")
 
     tables.sort()
+    tables.build_index()
+    tables.compute_mutation_parents()
 
     ts = tables.tree_sequence()
 
@@ -169,6 +172,8 @@ def test_case_1():
     m3 = tables.mutations.add_row(s0, node=n3, time=1.5, derived_state="A")
 
     tables.sort()
+    tables.build_index()
+    tables.compute_mutation_parents()
     print(tables.mutations)
     ts = tables.tree_sequence()
     print(ts.draw_text())
@@ -199,6 +204,8 @@ def test_case_2():
     m3 = tables.mutations.add_row(s0, node=n3, time=1.5, derived_state="G")
 
     tables.sort()
+    tables.build_index()
+    tables.compute_mutation_parents()
     print(tables.mutations)
     ts = tables.tree_sequence()
     print(ts.draw_text())
@@ -230,6 +237,8 @@ def test_case_3():
     m3 = tables.mutations.add_row(s0, node=n3, time=1.5, derived_state="G")
 
     tables.sort()
+    tables.build_index()
+    tables.compute_mutation_parents()
     print(tables.mutations)
     ts = tables.tree_sequence()
     print(ts.draw_text())
@@ -297,6 +306,8 @@ def test_case_5():
     m2 = tables.mutations.add_row(s0, node=1, time=0.1, derived_state="C")
 
     tables.sort()
+    tables.build_index()
+    tables.compute_mutation_parents()
     ts = tables.tree_sequence()
     print(ts.draw_text())
     print(tables.mutations)
