@@ -13,7 +13,8 @@ def make_allele_count_list(ts: tskit.TreeSequence):
     allele_count_list = []
     for diffs in ts.edge_diffs():
         for o in diffs.edges_out:
-            raise NotImplementedError()
+            num_samples_below[o.parent] -= num_samples_below[o.child]
+            parent[o.child] = tskit.NULL
         for i in diffs.edges_in:
             parent[i.child] = i.parent
             num_samples_below[i.parent] += num_samples_below[i.child]
@@ -327,7 +328,7 @@ def test_case_6():
     n5 = tables.nodes.add_row(0, time=2.0)
     n6 = tables.nodes.add_row(0, time=3.0)
 
-    s0 = tables.sites.add_row(4.0, ancestral_state="G")
+    s0 = tables.sites.add_row(6.0, ancestral_state="G")
 
     tables.edges.add_row(0, 5, n6, n5)
     tables.edges.add_row(0, 5, n6, n3)
