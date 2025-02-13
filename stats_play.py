@@ -350,6 +350,8 @@ def test_case_6():
     s1 = tables.sites.add_row(4.0, ancestral_state="G")
     # NOTE: adding all these mutations (accidentally)
     # to s0 causes internal assertions to fail
+    # The reason is b/c we have a site w/no mutations, which we currently
+    # consider an error.
     m1 = tables.mutations.add_row(s1, node=5, time=2.1, derived_state="A")
     m2 = tables.mutations.add_row(s1, node=4, time=1.1, derived_state="G")
     m3 = tables.mutations.add_row(s1, node=1, time=0.1, derived_state="C")
